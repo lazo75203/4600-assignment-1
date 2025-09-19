@@ -1,0 +1,128 @@
+#include <iostream>
+#include <vector>
+#include <list>
+#include <map>
+#include <queue>
+#include <utility> // For pair
+#include <set>
+using namespace std;
+
+class DirectedGraph {
+private:
+    map<char, list<pair<char, int>>> adjList;  // adjacency list with weights
+
+public:
+    // Function to add an edge from source to destination with a given weight
+    void addEdge(char source, char destination, int weight) {
+        adjList[source].push_back(make_pair(destination, weight));
+    }
+
+    // Function to print the graph
+    void printGraph() {
+        for (const auto& node : adjList) { //iterates through adjacency list
+            cout << "Node " << node.first << " has edges to: "; //displaying node letter
+            if (node.second.empty()) {//if no associated weight, means no edge
+                cout << "No outgoing edges.";
+            } else {
+                for (const auto& edge : node.second) {//if weight is found then output neighbor node
+                    cout << "(" << edge.first << ", weight: " << edge.second << ") ";
+                }
+            }
+            cout << endl;
+        }
+    }
+
+   
+    void bfs(char start, char target) {
+        
+        // To keep track of visited nodes
+        set<char> visited;
+        
+        // Queue for BFS
+        queue<char> q;
+
+        // Start with the source node
+        visited.insert(start);
+        q.push(start);
+
+        cout << "BFS starting from node " << start << ": ";
+
+        while (!q.empty()) { //iterating through the qque until node is found
+            char node = q.front(); //assigning node to the first value 
+            q.pop(); //prep next value
+
+            // If we found the target node, stop and print a message
+            if (node == target) {
+                cout << "Node " << target << " found!" << endl;
+                return;
+            }
+
+            cout << node << " ";  // Print the node
+            
+            // Visit all the neighbors of the current node
+            for (const auto& neighbor : adjList[node]) { // gives neigbor node of the current node
+                char neighborNode = neighbor.first;// gets the char associated with node
+                if (visited.find(neighborNode) == visited.end()) { //checks to see if this neighbor has been visited yet
+                    visited.insert(neighborNode);//marks as visited if not in visited
+                    q.push(neighborNode);//adds neighbor to que
+                }
+            }
+        }
+
+        // If the target node is not found
+        cout << "Node " << target << " not found." << endl;
+    }
+    
+
+    void dfs(char start, char target) {
+        set<char> visited; //que for visited nodes
+        cout << "DFS starting from node " << start << ": ";
+        dfsHelper(start, visited, target);
+        cout << endl;
+    }
+
+    // Helper function for DFS
+    void dfsHelper(char node, set<char>& visited, char target) {
+        // If we found the target node, stop and print a message
+        if (node == target) {
+            cout << "Node " << target << " found!" << endl;
+            return;
+        }
+
+        // Mark the node as visited and print it
+        visited.insert(node);
+        cout << node << " ";
+
+        // Visit all the neighbors of the current node
+        for (const auto& neighbor : adjList[node]) {
+            char neighborNode = neighbor.first;
+            if (visited.find(neighborNode) == visited.end()) {
+                dfsHelper(neighborNode, visited, target);
+            }
+        }
+    }
+};
+
+int main() {
+    DirectedGraph g; //intializing  graps
+
+    // Add edges to the graph
+    g.addEdge('A', 'B', 5);
+    g.addEdge('A', 'C', 3);
+    g.addEdge('B', 'C', 2);
+    g.addEdge('C', 'D', 6);
+    g.addEdge('D', 'A', 1);
+    g.addEdge('C', 'G', 4); 
+    g.addEdge('D', 'G', 7);  
+
+    // Print the graph
+    g.printGraph();
+
+    // Perform BFS starting from node 'A' and search for node 'G'
+    g.bfs('A', 'G');
+    
+    // Perform DFS starting from node 'A' and search for node 'G'
+    g.dfs('A', 'G');
+
+    return 0;
+}
